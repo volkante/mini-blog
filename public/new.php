@@ -9,6 +9,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (trim($title) === '') $errors[] = 'Title required';
     if (trim($content) === '') $errors[] = 'Content required';
 
+
+
     if (!$errors) {
         $post = create_post($title, $content);
         header('Location: /show.php?id=' . urlencode($post['id']));
