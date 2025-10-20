@@ -1,9 +1,14 @@
 <?php
 require __DIR__ . '/../src/functions.php';
 
+$id = (string)($_GET['id'] ?? '');
+echo '<pre>';
+    var_dump($_GET);
+echo '</pre>';
+$post = $id ? find_post($id) : null;
+
 $errors = [];
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-
     $title = $_POST['title'] ?? '';
     $content = $_POST['content'] ?? '';
 
@@ -11,9 +16,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (trim($content) === '') $errors[] = 'Content required';
 
     if (!$errors) {
-        $post = create_post($title, $content);
-        header('Location: /show.php?id=' . urlencode($post['id']));
-        exit;
+        if (update_post($id, $title, $content)) {
+            header('Location: /show.php?id=' . urlencode($id));
+            exit;
+        } else {
+            $errors[] = 'Post not found';
+        }
+    }
+} else {
+    // form ilk açılışta mevcut değerleri doldursun
+    if ($post) {
+        $_POST['title'] = $post['title'];
+        $_POST['content'] = $post['content'];
     }
 }
 ?>
@@ -22,7 +36,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <html lang="tr">
 <head>
     <meta charset="utf-8">
-    <title>New Post - Mini Blog</title>
+    <title><?= $post ? 'Edit: ' . e($post['title']) : 'Content not found' ?></title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <style>
         body{font-family: system-ui,-apple-system,Arial,sans-serif; margin:2rem auto; max-width:720px}
@@ -35,16 +49,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </style>
 </head>
 <body>
-    <h1>New Post</h1>
+<?php if (!$post): ?>
+    <h1>Content not found</h1>
+    <p><a href="/">← Homepage</a></p>
+<?php else: ?>
+    <h1>Edit content</h1>
+
     <?php foreach ($errors as $e): ?>
         <div class="error"><?= e($e) ?></div>
     <?php endforeach; ?>
+
     <form method="post">
         <label for="title">Title</label>
         <input id="title" name="title" value="<?= e($_POST['title'] ?? '') ?>">
+
         <label for="content">Content</label>
-        <textarea name="content" id="content"><?= e($_POST['content'] ?? '') ?></textarea>
-        <button class="btn" type="submit">Submit</button>
+        <textarea id="content" name="content"><?= e($_POST['content'] ?? '') ?></textarea>
+
+        <button class="btn" type="submit">Update</button>
     </form>
+
+    <p><a href="/show.php?id=<?= e($post['id']) ?>">← Back</a></p>
+<?php endif; ?>
 </body>
 </html>
+

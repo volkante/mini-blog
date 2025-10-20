@@ -36,6 +36,36 @@ function find_post(string $id): ?array {
     return null;
 }
 
+function update_post(string $id, string $title, string $content): bool {
+    $posts = load_posts();
+    $updated = false;
+    foreach ($posts as &$p) {
+        if ($p['id'] === $id) {
+            $p['title'] = trim($title);
+            $p['content'] = trim($content);
+            $updated = true;
+            break;
+        }
+    }
+    if ($updated) save_posts($posts);
+    return $updated;
+}
+
+function delete_post(string $id): bool {
+    $posts = load_posts();
+    $before = count($posts);
+    // array_values yeniden index atamak için filtre edilmiş associative arr'a.
+    $posts = array_values(array_filter($posts, fn($p) => $p['id'] !== $id));
+    $after = count($posts);
+    if ($after < $before) {
+        save_posts($posts);
+        return true;
+    }
+    return false;
+}
+
+
+
 // to prevent XSS ?
 function e(string $s): string {
     return htmlspecialchars($s, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');

@@ -3,6 +3,7 @@ require __DIR__ . '/../src/functions.php';
 $posts = load_posts();
 ?>
 
+
 <!doctype html>
 <html lang="tr">
 <head>
@@ -12,8 +13,8 @@ $posts = load_posts();
     <style>
         body{font-family: system-ui,-apple-system,Arial,sans-serif; margin:2rem auto; max-width:720px; line-height:1.5}
         header,footer{display:flex; justify-content:space-between; align-items:center}
-        a{color:#0b5; text-decoration:none}
-        a:hover{text-decoration:underline}
+        a,button{color:darkgreen; text-decoration:none}
+        a:hover, button:hover{text-decoration:underline}
         .card{border:1px solid #ddd; border-radius:12px; padding:1rem; margin:.75rem 0}
         .muted{color:#666; font-size:.9rem}
         .btn{display:inline-block; padding:.5rem .8rem; border-radius:8px; border:1px solid #0b5}
@@ -34,7 +35,16 @@ $posts = load_posts();
                 <h2><a href="/show.php?id=<?= e($p['id']) ?>"><?= e($p['title']) ?></a></h2>
                 <p class="muted"><?= e(date('d.m.Y H:i', strtotime($p['created_at']))) ?></p>
                 <p><?= nl2br(e(mb_strimwidth($p['content'], 0, 200, '…'))) ?></p>
-                <a href="/show.php?id=<?= e($p['id']) ?>">Read →</a>
+                <div style="margin-top:.5rem">
+                    <a href="/show.php?id=<?= e($p['id']) ?>">Read →</a>
+                    &nbsp;•&nbsp;
+                    <a href="/edit.php?id=<?= e($p['id']) ?>">Edit</a>
+                    &nbsp;•&nbsp;
+                    <form action="/delete.php" method="post" style="display:inline" onsubmit="return confirm('Are you sure you want to delete?');">
+                        <input type="hidden" name="id" value="<?= e($p['id']) ?>">
+                        <button type="submit" style="font-size: inherit;border:none;background:none;color:#c00;cursor:pointer">Delete</button>
+                    </form>
+                </div>
             </article>
         <?php endforeach; ?>
     <?php endif; ?>
